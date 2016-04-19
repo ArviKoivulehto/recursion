@@ -7,9 +7,7 @@
      (product (rest coll)))))
 
 (defn singleton? [coll]
-  (if (empty? (rest coll))
-    (if (not (nil? (first coll))) true false) 
-    false))
+  (if (empty? coll) false (if (empty? (rest coll)) true false)))
 
 (defn my-last [coll]
   (if (empty? (rest coll))
@@ -36,13 +34,11 @@
        (my-last (rest a-seq)))))
 
 (defn my-filter [pred? a-seq]
-  (let [new '()]
-    (let [my-cons (fn [x y]
-          (if (nil? x) y (cons x y)))]
-    (if (empty? a-seq)
-      nil
-      (my-cons (if (pred? (first a-seq)) (first a-seq) nil)
-            (my-filter pred? (rest a-seq)))))))
+  (let [my-cons (fn [x y]
+        (if (nil? x) y (cons x y)))]
+  (if (empty? a-seq)
+    a-seq
+     (if (pred? (first a-seq)) (cons (first a-seq) (my-filter pred? (rest a-seq))) (my-filter pred? (rest a-seq))))))
 
 (defn sequence-contains? [elem a-seq]
   (cond
@@ -76,6 +72,7 @@
 (defn seq= [a-seq b-seq]
   (cond
     (and (empty? a-seq) (empty? b-seq)) true
+    (or (empty? a-seq) (empty? b-seq)) false
     (= (first a-seq) (first b-seq)) (seq= (rest a-seq) (rest b-seq))
     :else false))
 
@@ -103,10 +100,10 @@
 
 (defn my-repeat [how-many-times what-to-repeat]
   (cond 
-    (== 0 how-many-times)
+    (<= how-many-times 0)
     '()
     :else
-    (cons what-to-repeat (my-repeat (- how-many-times 1) what-to-repeat))))
+    (cons what-to-repeat (my-repeat (dec how-many-times) what-to-repeat))))
 
 (defn my-range [up-to]
   (if (== 0 up-to)
@@ -125,7 +122,7 @@
     (empty? a-seq)
     '(())
     :else
-    (cons (seq a-seq) (inits (butlast a-seq)))))
+    (cons (seq a-seq) (inits-helper (butlast a-seq)))))
 
 (defn inits [a-seq]
   (let [initial (inits-helper a-seq)]
