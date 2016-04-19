@@ -129,12 +129,12 @@
     (sort (fn [x y] (< (count x) (count y))) initial)))
 
 (defn rotation [a-seq number]
-  (let [a-seq (concat (rest a-seq) [(first a-seq)])]
   (cond
     (== number 0)
     '()
     :else
-    (cons a-seq (rotation a-seq (dec number))))))
+    (let [combined (concat (drop number a-seq) (take number a-seq))]
+      (cons combined (rotation a-seq (dec number))))))
 
 (defn rotations [a-seq]
   (rotation a-seq (count a-seq)))
@@ -217,11 +217,32 @@
       (let [one (merge-sort (nth (halve a-seq) 1))]
         (seq-merge zero one)))))
 
+(defn monotonic? [a-seq]
+  (if (or (apply >= a-seq) (apply <= a-seq)) true false))
+
+(defn longest [a-seq]
+  (cond
+    ((complement empty?) a-seq)
+    (nth a-seq (dec (apply max (map count a-seq))))))
+
 (defn split-into-monotonics [a-seq]
-  [:-])
+  (cond 
+    (empty? a-seq)
+    '()
+    :else
+    (let [l (longest (take-while monotonic? (drop 1 (inits a-seq))))]
+      (cons l (split-into-monotonics (drop (count l) a-seq))))))
+
+(defn permutations-helper [a-set number index]
+  (cond
+    (== 0 number)
+    [(get a-set index)]
+    :else
+    (let [perm (concat [(get a-set index)] (permutations-helper a-set (dec number) (inc index)))]
+      (cons perm '()))))
 
 (defn permutations [a-set]
-  [:-])
+  (permutations-helper a-set (count a-set) 0))
 
 (defn powerset [a-set]
   [:-])
